@@ -1,8 +1,12 @@
-import { createApp } from "vue"
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
 
-import App from "./App.vue"
-import router from "./router"
+// Inicialización de la instancia de Vue
+const app = createApp(App)
 
-createApp(App)
-  .use(router)
-  .mount("#app")
+// Inyectar el router en la aplicación
+app.use(router)
+
+// Montar la aplicación en el DOM (index.html)
+app.mount('#app')

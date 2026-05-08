@@ -1,116 +1,167 @@
 <template>
-  <div class="container">
+  <div class="login-wrapper">
+    <form @submit.prevent="handleSubmit" class="login-card">
+      <h2 class="title">Acceso al Sistema</h2>
+      
+      <div class="input-group">
+        <label for="correo">Correo Electrónico</label>
+        <input 
+          type="email" 
+          id="correo" 
+          v-model="correo" 
+          required 
+          placeholder="estudiante@universidad.edu.co"
+        />
+      </div>
 
-    <form class="login-card" @submit.prevent="handleSubmit">
+      <div class="input-group">
+        <label for="password">Contraseña</label>
+        <input 
+          type="password" 
+          id="password" 
+          v-model="password" 
+          required 
+          placeholder="Ingresa tu contraseña"
+        />
+      </div>
 
-      <h2>Login</h2>
-
-      <input
-        type="email"
-        placeholder="Correo"
-        v-model="correo"
-        required
-      />
-
-      <input
-        type="password"
-        placeholder="Contraseña"
-        v-model="password"
-        required
-      />
-
-      <div v-if="errorMessage" class="error">
+      <div v-if="errorMessage" class="error-box">
         {{ errorMessage }}
       </div>
 
       <button type="submit" :disabled="loading">
-        {{ loading ? "Ingresando..." : "Ingresar" }}
+        {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
       </button>
-
     </form>
-
   </div>
 </template>
 
-<script>
-import authService from "../services/authService"
+<script setup>
+import { ref } from 'vue';
+import { authService } from '../services/authService'; // Ajusta la ruta si es necesario
 
-export default {
+// Definición de datos reactivos
+const correo = ref('');
+const password = ref('');
+const loading = ref(false);
+const errorMessage = ref('');
 
-  data() {
-    return {
-      correo: "",
-      password: "",
-      loading: false,
-      errorMessage: ""
-    }
-  },
+// Definición del evento que se emitirá a la Vista principal
+const emit = defineEmits(['login-success']);
 
-  methods: {
+const handleSubmit = async () => {
+  // 1. Activar carga y limpiar errores previos
+  loading.value = true;
+  errorMessage.value = '';
 
-    async handleSubmit() {
+  // 2. Llamar al servicio HTTP
+  const result = await authService.login(correo.value, password.value);
 
-      this.loading = true
-      this.errorMessage = ""
-
-      const result = await authService.login(this.correo, this.password)
-
-      if (result.success) {
-
-        this.$emit("login-success", result.secret_phrase)
-
-      } else {
-
-        this.errorMessage = result.message
-      }
-
-      this.loading = false
-    }
+  // 3. Evaluar respuesta
+  if (result.success) {
+    // Si hay éxito, el componente delega la redirección al padre enviando la frase
+    emit('login-success', result.secret_phrase);
+  } else {
+    // Si falla, muestra el error localmente
+    errorMessage.value = result.message || 'Error de conexión con el servidor.';
   }
-}
+
+  // 4. Desactivar carga
+  loading.value = false;
+};
 </script>
 
 <style scoped>
-
-.container{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  background:linear-gradient(135deg,#667eea,#764ba2);
+/* Contenedor: centrado vertical y horizontal con fondo gradiente */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem;
 }
 
-.login-card{
-  background:white;
-  padding:40px;
-  border-radius:10px;
-  width:300px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+/* Formulario: fondo blanco, padding, border-radius, sombra */
+.login-card {
+  background-color: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-input{
-  padding:10px;
-  border-radius:5px;
-  border:1px solid #ccc;
+.title {
+  text-align: center;
+  margin: 0;
+  color: #333;
 }
 
-button{
-  padding:10px;
-  border:none;
-  background:#667eea;
-  color:white;
-  border-radius:5px;
-  cursor:pointer;
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.error{
-  background:#ffdede;
-  color:#a10000;
-  padding:10px;
-  border-radius:5px;
+label {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
 }
 
+/* Inputs: bordes suaves, padding, efecto focus con color */
+input {
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+}
+
+input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Botón: gradiente, color blanco, efecto hover */
+button {
+  padding: 1rem;
+  background: linear-gradient(to right, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+button:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(118, 75, 162, 0.4);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Error: fondo rojo claro, texto rojo, padding */
+.error-box {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid #fca5a5;
+}
 </style>

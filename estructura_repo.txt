@@ -1,0 +1,33 @@
+.
+├── estructura_repo.txt
+├── frontend
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── public
+│   │   ├── favicon.svg
+│   │   └── icons.svg
+│   ├── README.md
+│   ├── src
+│   │   ├── App.vue
+│   │   ├── assets
+│   │   │   ├── hero.png
+│   │   │   ├── vite.svg
+│   │   │   └── vue.svg
+│   │   ├── components
+│   │   │   ├── HelloWorld.vue
+│   │   │   ├── LoginForm.vue
+│   │   │   └── SecretDisplay.vue
+│   │   ├── main.js
+│   │   ├── router
+│   │   │   └── index.js
+│   │   ├── services
+│   │   │   └── authService.js
+│   │   ├── style.css
+│   │   └── views
+│   │       ├── LoginView.vue
+│   │       └── SecretView.vue
+│   └── vite.config.js
+└── README.md
+
+9 directories, 22 files

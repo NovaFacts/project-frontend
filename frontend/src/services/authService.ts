@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from './api';
 import type { LoginCredentials, AuthResult } from '../types/auth';
 
 const TOKEN_KEY = 'auth_token';
@@ -17,8 +18,12 @@ export async function authenticateUser({ email, password, shouldRememberUser }: 
     }
 
     try {
-        const response = await axios.post('/api/auth/login', { email, password });
+        const response = await api.post('/api/auth/login', { username: email, password, });
         const token: string = response.data.token;
+
+        if (!token) {
+            return { status: 'server_error', errorCode: 500 };
+        }
 
         localStorage.setItem(TOKEN_KEY, token);
 

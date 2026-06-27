@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../views/LoginView.vue';
 import DashboardView from '../views/DashboardView.vue';
 import GuestsView from '../views/GuestsView.vue';
+import { TOKEN_KEY } from '../services/api';
 
 const routes = [
   {
@@ -24,6 +25,12 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
+});
+
+router.beforeEach((to) => {
+  if (to.name !== 'login' && !localStorage.getItem(TOKEN_KEY)) {
+    return { name: 'login' };
+  }
 });
 
 export default router;

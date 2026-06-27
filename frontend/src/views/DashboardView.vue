@@ -17,12 +17,12 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { logout } from '@/services/authService';
 
 const router = useRouter();
 
 function handleLogout(): void {
-  localStorage.removeItem('token');
-  sessionStorage.removeItem('token');
+  logout();
   router.push('/');
 }
 </script>

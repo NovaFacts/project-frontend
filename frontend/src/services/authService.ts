@@ -1,16 +1,6 @@
 import axios from 'axios';
-import api from './api';
+import api, { TOKEN_KEY } from './api';
 import type { LoginCredentials, AuthResult } from '../types/auth';
-
-const TOKEN_KEY = 'auth_token';
-
-axios.interceptors.request.use((config) => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
 
 export async function authenticateUser({ email, password, shouldRememberUser }: LoginCredentials): Promise<AuthResult> {
     if (!email.includes('@')) {
@@ -18,7 +8,7 @@ export async function authenticateUser({ email, password, shouldRememberUser }: 
     }
 
     try {
-        const response = await api.post('/api/auth/login', { username: email, password, });
+        const response = await api.post('/api/auth/login', { email, password });
         const token: string = response.data.token;
 
         if (!token) {

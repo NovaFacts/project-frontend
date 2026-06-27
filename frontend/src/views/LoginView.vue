@@ -81,8 +81,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { authenticateUser } from '@/services/authService';
 import type { LoginCredentials } from '@/types/auth';
+
+const router = useRouter();
 
 // Variables descriptivas y reactivas con tipado explícito de TypeScript
 const userEmail = ref<string>('');
@@ -124,8 +127,7 @@ async function handleFormSubmit(): Promise<void> {
   }
 
   // Si todo sale bien (status === 'success')
-  console.log('Login exitoso para el token:', result.token);
-  // Aquí puedes redirigir con tu vue-router ej: router.push('/dashboard')
+  router.push('/dashboard');
 }
 </script>
 

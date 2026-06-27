@@ -3,6 +3,10 @@
     <header class="dashboard-header">
       <img src="@/assets/logo.png" alt="NovaFacts Logo" class="header-logo" />
       <h1 class="header-title">NovaFacts</h1>
+      <nav class="header-nav">
+        <router-link to="/dashboard" class="nav-link nav-link--active">Dashboard</router-link>
+        <router-link to="/guests" class="nav-link">Huéspedes</router-link>
+      </nav>
       <button class="logout-button" @click="handleLogout">Cerrar sesión</button>
     </header>
 
@@ -43,6 +47,33 @@ function handleLogout(): void {
   padding: 16px 32px;
   background-color: #ffffff;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.header-nav {
+  display: flex;
+  gap: 8px;
+  margin-left: 24px;
+  flex: 1;
+}
+
+.nav-link {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: #475569;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.nav-link:hover {
+  background-color: #f1f5f9;
+  color: #111111;
+}
+
+.nav-link--active {
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
 }
 
 .header-logo {

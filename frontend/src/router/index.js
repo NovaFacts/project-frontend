@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../views/LoginView.vue';
-import SecretView from '../views/SecretView.vue';
 import DashboardView from '../views/DashboardView.vue';
 
 const routes = [
@@ -13,13 +12,6 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardView
-  },
-  {
-    // El ':' indica un parámetro dinámico.
-    // El '?' al final hace que el parámetro sea opcional.
-    path: '/secret/:secretPhrase?',
-    name: 'secret',
-    component: SecretView
   }
 ];
 

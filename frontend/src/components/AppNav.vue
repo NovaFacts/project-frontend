@@ -5,6 +5,7 @@
     <router-link to="/properties" class="nav-link" exact-active-class="nav-link--active">Propiedades</router-link>
     <router-link to="/reservations" class="nav-link" exact-active-class="nav-link--active">Reservas</router-link>
     <router-link to="/invoices" class="nav-link" exact-active-class="nav-link--active">Facturas</router-link>
+    <router-link to="/payments" class="nav-link" exact-active-class="nav-link--active">Pagos</router-link>
   </nav>
 </template>
 

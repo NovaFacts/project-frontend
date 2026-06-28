@@ -2,6 +2,7 @@
   <nav class="header-nav">
     <router-link to="/dashboard" class="nav-link" exact-active-class="nav-link--active">Dashboard</router-link>
     <router-link to="/guests" class="nav-link" exact-active-class="nav-link--active">Huéspedes</router-link>
+    <router-link to="/properties" class="nav-link" exact-active-class="nav-link--active">Propiedades</router-link>
   </nav>
 </template>
 

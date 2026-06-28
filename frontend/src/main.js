@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import './assets/shared.css'
 
 // Inicialización de la instancia de Vue
 const app = createApp(App)

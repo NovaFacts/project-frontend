@@ -3,6 +3,7 @@
     <router-link to="/dashboard" class="nav-link" exact-active-class="nav-link--active">Dashboard</router-link>
     <router-link to="/guests" class="nav-link" exact-active-class="nav-link--active">Huéspedes</router-link>
     <router-link to="/properties" class="nav-link" exact-active-class="nav-link--active">Propiedades</router-link>
+    <router-link to="/reservations" class="nav-link" exact-active-class="nav-link--active">Reservas</router-link>
   </nav>
 </template>
 

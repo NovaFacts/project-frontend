@@ -208,6 +208,33 @@
   margin: 8px 0 0;
 }
 
+/* ── Status badges ───────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.badge--confirmed {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.badge--cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.badge--completed {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
 @media (max-width: 480px) {
   .form-row {
     grid-template-columns: 1fr;

@@ -235,6 +235,54 @@
   color: #3730a3;
 }
 
+.badge--pending {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.badge--paid {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+/* ── Lookup bar ──────────────────────────────────────────── */
+.lookup-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.lookup-bar input {
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #1e293b;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s;
+}
+
+.lookup-bar input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ── Page-level alert ────────────────────────────────────── */
+.page-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+
 @media (max-width: 480px) {
   .form-row {
     grid-template-columns: 1fr;

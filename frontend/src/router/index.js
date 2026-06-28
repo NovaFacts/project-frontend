@@ -4,6 +4,7 @@ import DashboardView from '../views/DashboardView.vue';
 import GuestsView from '../views/GuestsView.vue';
 import PropertiesView from '../views/PropertiesView.vue';
 import ReservationsView from '../views/ReservationsView.vue';
+import InvoicesView from '../views/InvoicesView.vue';
 import AppLayout from '../layouts/AppLayout.vue';
 import { TOKEN_KEY } from '../services/api';
 
@@ -20,7 +21,8 @@ const routes = [
       { path: '/dashboard', name: 'dashboard', component: DashboardView },
       { path: '/guests', name: 'guests', component: GuestsView },
       { path: '/properties', name: 'properties', component: PropertiesView },
-      { path: '/reservations', name: 'reservations', component: ReservationsView }
+      { path: '/reservations', name: 'reservations', component: ReservationsView },
+      { path: '/invoices', name: 'invoices', component: InvoicesView }
     ]
   }
 ];

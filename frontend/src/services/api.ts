@@ -1,5 +1,6 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 
+export { isAxiosError };
 export const TOKEN_KEY = 'auth_token';
 
 const api = axios.create({

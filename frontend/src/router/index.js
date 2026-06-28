@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../views/LoginView.vue';
 import DashboardView from '../views/DashboardView.vue';
 import GuestsView from '../views/GuestsView.vue';
+import AppLayout from '../layouts/AppLayout.vue';
 import { TOKEN_KEY } from '../services/api';
 
 const routes = [
@@ -11,14 +12,12 @@ const routes = [
     component: LoginView
   },
   {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: DashboardView
-  },
-  {
-    path: '/guests',
-    name: 'guests',
-    component: GuestsView
+    path: '/',
+    component: AppLayout,
+    children: [
+      { path: '/dashboard', name: 'dashboard', component: DashboardView },
+      { path: '/guests', name: 'guests', component: GuestsView }
+    ]
   }
 ];
 

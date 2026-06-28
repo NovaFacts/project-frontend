@@ -1,137 +1,129 @@
 <template>
-  <div class="page-container">
-    <AppHeader />
-
-    <main class="page-main">
-      <div class="section-header">
-        <h2 class="section-title">Gestión de Huéspedes</h2>
-        <button class="btn btn--primary" @click="openCreateModal">+ Nuevo huésped</button>
-      </div>
-
-      <div v-if="isLoading" class="state-box">
-        <span class="spinner" />
-        <span>Cargando huéspedes…</span>
-      </div>
-
-      <div v-else-if="errorMessage" class="state-box state-box--error">
-        {{ errorMessage }}
-        <button class="btn btn--ghost" @click="loadGuests">Reintentar</button>
-      </div>
-
-      <div v-else-if="guests.length === 0" class="state-box state-box--empty">
-        No hay huéspedes registrados. Crea el primero.
-      </div>
-
-      <div v-else class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Nombre completo</th>
-              <th>Tipo doc.</th>
-              <th>N° documento</th>
-              <th>Correo</th>
-              <th>Teléfono</th>
-              <th>Registrado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="guest in guests" :key="guest.id">
-              <td>{{ guest.firstName }} {{ guest.lastName }}</td>
-              <td>{{ guest.documentType }}</td>
-              <td>{{ guest.documentNumber }}</td>
-              <td>{{ guest.email ?? '—' }}</td>
-              <td>{{ guest.phone ?? '—' }}</td>
-              <td>{{ formatDate(guest.createdAt) }}</td>
-              <td class="actions-cell">
-                <button class="btn btn--sm btn--ghost" @click="openEditModal(guest)">Editar</button>
-                <button class="btn btn--sm btn--danger" @click="confirmDelete(guest)">Eliminar</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
-
-    <!-- Create / Edit modal -->
-    <div v-if="showModal" class="modal-backdrop" @click.self="closeModal">
-      <div class="modal">
-        <h3 class="modal-title">{{ modalMode === 'create' ? 'Nuevo huésped' : 'Editar huésped' }}</h3>
-
-        <form @submit.prevent="handleSubmit" novalidate>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="firstName">Nombre *</label>
-              <input id="firstName" v-model="form.firstName" type="text" placeholder="Juan" required />
-            </div>
-            <div class="form-group">
-              <label for="lastName">Apellido *</label>
-              <input id="lastName" v-model="form.lastName" type="text" placeholder="Pérez" required />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="documentType">Tipo de documento *</label>
-              <select id="documentType" v-model="form.documentType" required>
-                <option value="" disabled>Seleccionar…</option>
-                <option v-for="dt in DOCUMENT_TYPES" :key="dt" :value="dt">{{ dt }}</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="documentNumber">N° de documento *</label>
-              <input id="documentNumber" v-model="form.documentNumber" type="text" placeholder="1234567890" required />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="email">Correo electrónico</label>
-              <input id="email" v-model="form.email" type="email" placeholder="juan@correo.com" />
-            </div>
-            <div class="form-group">
-              <label for="phone">Teléfono</label>
-              <input id="phone" v-model="form.phone" type="tel" placeholder="3001234567" />
-            </div>
-          </div>
-
-          <p v-if="modalError" class="form-error">{{ modalError }}</p>
-
-          <div class="modal-actions">
-            <button type="button" class="btn btn--ghost" @click="closeModal">Cancelar</button>
-            <button type="submit" class="btn btn--primary" :disabled="isSubmitting">
-              {{ isSubmitting ? 'Guardando…' : 'Guardar' }}
-            </button>
-          </div>
-        </form>
-      </div>
+  <main class="page-main">
+    <div class="section-header">
+      <h2 class="section-title">Gestión de Huéspedes</h2>
+      <button class="btn btn--primary" @click="openCreateModal">+ Nuevo huésped</button>
     </div>
 
-    <!-- Delete confirmation modal -->
-    <div v-if="showDeleteModal" class="modal-backdrop" @click.self="cancelDelete">
-      <div class="modal modal--sm">
-        <h3 class="modal-title">Eliminar huésped</h3>
-        <p class="modal-body">
-          ¿Estás seguro de que quieres eliminar a
-          <strong>{{ guestToDelete?.firstName }} {{ guestToDelete?.lastName }}</strong>?
-          Esta acción no se puede deshacer.
-        </p>
-        <p v-if="deleteError" class="form-error">{{ deleteError }}</p>
-        <div class="modal-actions">
-          <button class="btn btn--ghost" @click="cancelDelete">Cancelar</button>
-          <button class="btn btn--danger" :disabled="isDeleting" @click="handleDelete">
-            {{ isDeleting ? 'Eliminando…' : 'Eliminar' }}
-          </button>
+    <div v-if="isLoading" class="state-box">
+      <span class="spinner" />
+      <span>Cargando huéspedes…</span>
+    </div>
+
+    <div v-else-if="errorMessage" class="state-box state-box--error">
+      {{ errorMessage }}
+      <button class="btn btn--ghost" @click="loadGuests">Reintentar</button>
+    </div>
+
+    <div v-else-if="guests.length === 0" class="state-box state-box--empty">
+      No hay huéspedes registrados. Crea el primero.
+    </div>
+
+    <div v-else class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre completo</th>
+            <th>Tipo doc.</th>
+            <th>N° documento</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Registrado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="guest in guests" :key="guest.id">
+            <td>{{ guest.firstName }} {{ guest.lastName }}</td>
+            <td>{{ guest.documentType }}</td>
+            <td>{{ guest.documentNumber }}</td>
+            <td>{{ guest.email ?? '—' }}</td>
+            <td>{{ guest.phone ?? '—' }}</td>
+            <td>{{ formatDate(guest.createdAt) }}</td>
+            <td class="actions-cell">
+              <button class="btn btn--sm btn--ghost" @click="openEditModal(guest)">Editar</button>
+              <button class="btn btn--sm btn--danger" @click="confirmDelete(guest)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Create / Edit modal -->
+  <AppModal v-if="showModal" @close="closeModal">
+    <h3 class="modal-title">{{ modalMode === 'create' ? 'Nuevo huésped' : 'Editar huésped' }}</h3>
+
+    <form @submit.prevent="handleSubmit" novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Nombre *</label>
+          <input id="firstName" v-model="form.firstName" type="text" placeholder="Juan" required />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellido *</label>
+          <input id="lastName" v-model="form.lastName" type="text" placeholder="Pérez" required />
         </div>
       </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="documentType">Tipo de documento *</label>
+          <select id="documentType" v-model="form.documentType" required>
+            <option value="" disabled>Seleccionar…</option>
+            <option v-for="dt in DOCUMENT_TYPES" :key="dt" :value="dt">{{ dt }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="documentNumber">N° de documento *</label>
+          <input id="documentNumber" v-model="form.documentNumber" type="text" placeholder="1234567890" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input id="email" v-model="form.email" type="email" placeholder="juan@correo.com" />
+        </div>
+        <div class="form-group">
+          <label for="phone">Teléfono</label>
+          <input id="phone" v-model="form.phone" type="tel" placeholder="3001234567" />
+        </div>
+      </div>
+
+      <p v-if="modalError" class="form-error">{{ modalError }}</p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn--ghost" @click="closeModal">Cancelar</button>
+        <button type="submit" class="btn btn--primary" :disabled="isSubmitting">
+          {{ isSubmitting ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </AppModal>
+
+  <!-- Delete confirmation modal -->
+  <AppModal v-if="showDeleteModal" size="sm" @close="cancelDelete">
+    <h3 class="modal-title">Eliminar huésped</h3>
+    <p class="modal-body">
+      ¿Estás seguro de que quieres eliminar a
+      <strong>{{ guestToDelete?.firstName }} {{ guestToDelete?.lastName }}</strong>?
+      Esta acción no se puede deshacer.
+    </p>
+    <p v-if="deleteError" class="form-error">{{ deleteError }}</p>
+    <div class="modal-actions">
+      <button class="btn btn--ghost" @click="cancelDelete">Cancelar</button>
+      <button class="btn btn--danger" :disabled="isDeleting" @click="handleDelete">
+        {{ isDeleting ? 'Eliminando…' : 'Eliminar' }}
+      </button>
     </div>
-  </div>
+  </AppModal>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import AppHeader from '@/components/AppHeader.vue';
+import { isAxiosError } from '@/services/api';
+import AppModal from '@/components/AppModal.vue';
 import { getGuests, createGuest, updateGuest, deleteGuest } from '@/services/guestService';
 import type { Guest, CreateGuestRequest, UpdateGuestRequest } from '@/types/guest';
 
@@ -226,7 +218,7 @@ async function handleSubmit() {
     }
     showModal.value = false;
   } catch (err: unknown) {
-    if (axios.isAxiosError(err)) {
+    if (isAxiosError(err)) {
       modalError.value = err.response?.data?.error ?? 'Error al guardar el huésped.';
     } else {
       modalError.value = 'Error al guardar el huésped.';
@@ -257,7 +249,7 @@ async function handleDelete() {
     showDeleteModal.value = false;
     guestToDelete.value = null;
   } catch (err: unknown) {
-    if (axios.isAxiosError(err)) {
+    if (isAxiosError(err)) {
       deleteError.value = err.response?.data?.error ?? 'No se pudo eliminar el huésped.';
     } else {
       deleteError.value = 'No se pudo eliminar el huésped.';
@@ -279,15 +271,6 @@ onMounted(loadGuests);
 </script>
 
 <style scoped>
-/* ── Layout ─────────────────────────────────────────────── */
-.page-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background-color: #f8fafc;
-}
-
 /* ── Main ────────────────────────────────────────────────── */
 .page-main {
   flex: 1;
@@ -442,30 +425,7 @@ onMounted(loadGuests);
   border-radius: 6px;
 }
 
-/* ── Modal ───────────────────────────────────────────────── */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.modal {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  width: 100%;
-  max-width: 560px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.modal--sm {
-  max-width: 420px;
-}
-
+/* ── Modal content ───────────────────────────────────────── */
 .modal-title {
   font-size: 1.15rem;
   font-weight: 700;
@@ -534,10 +494,6 @@ onMounted(loadGuests);
 @media (max-width: 480px) {
   .form-row {
     grid-template-columns: 1fr;
-  }
-
-  .modal {
-    padding: 24px 16px;
   }
 }
 </style>

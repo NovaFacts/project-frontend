@@ -1,29 +1,13 @@
 <template>
-  <div class="dashboard-container">
-    <AppHeader />
-
-    <main class="dashboard-main">
-      <h2 class="welcome-title">Bienvenido al panel de gestión</h2>
-      <p class="welcome-subtitle">
-        Gestión financiera de reservas de hospedaje — próximamente.
-      </p>
-    </main>
-  </div>
+  <main class="dashboard-main">
+    <h2 class="welcome-title">Bienvenido al panel de gestión</h2>
+    <p class="welcome-subtitle">
+      Gestión financiera de reservas de hospedaje — próximamente.
+    </p>
+  </main>
 </template>
 
-<script setup lang="ts">
-import AppHeader from '@/components/AppHeader.vue';
-</script>
-
 <style scoped>
-.dashboard-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background-color: #f8fafc;
-}
-
 .dashboard-main {
   flex: 1;
   display: flex;

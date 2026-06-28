@@ -2,10 +2,7 @@
   <header class="app-header">
     <img src="@/assets/logo.png" alt="NovaFacts Logo" class="header-logo" />
     <h1 class="header-title">NovaFacts</h1>
-    <nav class="header-nav">
-      <router-link to="/dashboard" class="nav-link" exact-active-class="nav-link--active">Dashboard</router-link>
-      <router-link to="/guests" class="nav-link" exact-active-class="nav-link--active">Huéspedes</router-link>
-    </nav>
+    <AppNav />
     <button class="logout-button" @click="handleLogout">Cerrar sesión</button>
   </header>
 </template>
@@ -13,6 +10,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { logout } from '@/services/authService';
+import AppNav from '@/components/AppNav.vue';
 
 const router = useRouter();
 
@@ -42,33 +40,6 @@ function handleLogout(): void {
   font-weight: 700;
   color: #111111;
   margin: 0;
-}
-
-.header-nav {
-  display: flex;
-  gap: 8px;
-  margin-left: 24px;
-  flex: 1;
-}
-
-.nav-link {
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  color: #475569;
-  text-decoration: none;
-  transition: background-color 0.15s;
-}
-
-.nav-link:hover {
-  background-color: #f1f5f9;
-  color: #111111;
-}
-
-.nav-link--active {
-  background-color: #eff6ff;
-  color: #2563eb;
-  font-weight: 600;
 }
 
 .logout-button {

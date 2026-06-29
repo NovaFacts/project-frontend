@@ -17,7 +17,7 @@
       <p class="section-label">General</p>
       <div class="stats-grid">
         <div class="stat-card stat-card--blue">
-          <p class="stat-label">Huéspedes</p>
+          <p class="stat-label">Clientes</p>
           <p class="stat-value">{{ stats.totalGuests }}</p>
         </div>
         <div class="stat-card stat-card--purple">
@@ -61,12 +61,12 @@
       <p class="section-label">Financiero</p>
       <div class="stats-grid">
         <div class="stat-card stat-card--teal">
-          <p class="stat-label">Pagos registrados</p>
-          <p class="stat-value">{{ stats.totalPayments }}</p>
+          <p class="stat-label">Anticipos registrados</p>
+          <p class="stat-value">{{ stats.totalAnticipos }}</p>
         </div>
         <div class="stat-card stat-card--revenue">
-          <p class="stat-label">Ingresos totales</p>
-          <p class="stat-value stat-value--revenue">{{ formatCurrency(stats.totalRevenue) }}</p>
+          <p class="stat-label">Monto total anticipos</p>
+          <p class="stat-value stat-value--revenue">{{ formatCurrency(stats.montoTotalAnticipos) }}</p>
         </div>
       </div>
     </template>
@@ -92,7 +92,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Huésped</th>
+              <th>Cliente</th>
               <th>Propiedad</th>
               <th>Entrada</th>
               <th>Salida</th>
@@ -101,7 +101,7 @@
           </thead>
           <tbody>
             <tr v-for="r in recentReservations" :key="r.id">
-              <td>{{ guestMap.get(r.guestId) ?? `Huésped #${r.guestId}` }}</td>
+              <td>{{ r.clienteNombre }}</td>
               <td>{{ propertyMap.get(r.propertyId) ?? `Propiedad #${r.propertyId}` }}</td>
               <td>{{ formatLocalDate(r.checkIn) }}</td>
               <td>{{ formatLocalDate(r.checkOut) }}</td>
@@ -116,20 +116,20 @@
       </div>
     </div>
 
-    <!-- ── Recent Invoices ─────────────────────────────────── -->
+    <!-- ── Recent Facturas ───────────────────────────────────── -->
     <div class="recent-section">
       <p class="section-label">Facturas recientes</p>
 
-      <div v-if="isInvoicesLoading" class="state-box state-box--sm">
+      <div v-if="isFacturasLoading" class="state-box state-box--sm">
         <span class="spinner" /><span>Cargando…</span>
       </div>
 
-      <div v-else-if="invoicesError" class="state-box state-box--error state-box--sm">
-        {{ invoicesError }}
-        <button class="btn btn--ghost btn--sm" @click="loadInvoices">Reintentar</button>
+      <div v-else-if="facturasError" class="state-box state-box--error state-box--sm">
+        {{ facturasError }}
+        <button class="btn btn--ghost btn--sm" @click="loadFacturas">Reintentar</button>
       </div>
 
-      <div v-else-if="recentInvoices.length === 0" class="state-box state-box--empty state-box--sm">
+      <div v-else-if="recentFacturas.length === 0" class="state-box state-box--empty state-box--sm">
         No hay facturas registradas.
       </div>
 
@@ -137,61 +137,67 @@
         <table class="data-table">
           <thead>
             <tr>
+              <th>N.º Factura</th>
               <th>Reserva</th>
               <th>Total</th>
               <th>Estado</th>
-              <th>Creada</th>
+              <th>Emitida</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="inv in recentInvoices" :key="inv.id">
-              <td>#{{ inv.reservationId }}</td>
-              <td>{{ formatCurrency(inv.total) }}</td>
+            <tr v-for="f in recentFacturas" :key="f.id">
+              <td>{{ f.numeroFactura }}</td>
+              <td>#{{ f.reservaId }}</td>
+              <td>{{ formatCurrency(f.total) }}</td>
               <td>
-                <span class="badge" :class="INV_STATUS_CLASSES[inv.status]">
-                  {{ INV_STATUS_LABELS[inv.status] }}
+                <span class="badge" :class="FAC_STATUS_CLASSES[f.estado]">
+                  {{ FAC_STATUS_LABELS[f.estado] }}
                 </span>
               </td>
-              <td>{{ formatDate(inv.createdAt) }}</td>
+              <td>{{ formatDate(f.emitidaEn) }}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── Recent Payments ─────────────────────────────────── -->
+    <!-- ── Recent Anticipos ────────────────────────────────── -->
     <div class="recent-section">
-      <p class="section-label">Pagos recientes</p>
+      <p class="section-label">Anticipos recientes</p>
 
-      <div v-if="isPaymentsLoading" class="state-box state-box--sm">
+      <div v-if="isAnticiposLoading" class="state-box state-box--sm">
         <span class="spinner" /><span>Cargando…</span>
       </div>
 
-      <div v-else-if="paymentsError" class="state-box state-box--error state-box--sm">
-        {{ paymentsError }}
-        <button class="btn btn--ghost btn--sm" @click="loadPayments">Reintentar</button>
+      <div v-else-if="anticiposError" class="state-box state-box--error state-box--sm">
+        {{ anticiposError }}
+        <button class="btn btn--ghost btn--sm" @click="loadAnticipos">Reintentar</button>
       </div>
 
-      <div v-else-if="recentPayments.length === 0" class="state-box state-box--empty state-box--sm">
-        No hay pagos registrados.
+      <div v-else-if="recentAnticipos.length === 0" class="state-box state-box--empty state-box--sm">
+        No hay anticipos registrados.
       </div>
 
       <div v-else class="table-wrapper">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Factura</th>
+              <th>Reserva</th>
               <th>Monto</th>
               <th>Método</th>
-              <th>Pagado</th>
+              <th>Estado</th>
+              <th>Fecha pago</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="pay in recentPayments" :key="pay.id">
-              <td>#{{ pay.invoiceId }}</td>
-              <td>{{ formatCurrency(pay.amount) }}</td>
-              <td>{{ METHOD_LABELS[pay.paymentMethod] }}</td>
-              <td>{{ formatDate(pay.paidAt) }}</td>
+            <tr v-for="a in recentAnticipos" :key="a.id">
+              <td>#{{ a.reservaId }}</td>
+              <td>{{ formatCurrency(a.monto) }}</td>
+              <td>{{ a.metodoPago ?? '—' }}</td>
+              <td>
+                <span class="badge" :class="estadoClass(a.estado)">{{ a.estado }}</span>
+              </td>
+              <td>{{ formatLocalDate(a.fechaPago) }}</td>
             </tr>
           </tbody>
         </table>
@@ -206,29 +212,27 @@ import { useAsyncState } from '@/composables/useAsyncState';
 import PageHeader from '@/components/PageHeader.vue';
 import { getDashboardStats } from '@/services/dashboardService';
 import { getReservations } from '@/services/reservationService';
-import { getGuests } from '@/services/guestService';
 import { getProperties } from '@/services/propertyService';
-import { getInvoices } from '@/services/invoiceService';
-import { getPayments } from '@/services/paymentService';
+import { getFacturas } from '@/services/facturaService';
+import { getAnticipos } from '@/services/anticipoService';
 import type { DashboardStats } from '@/types/dashboard';
 import type { Reservation, ReservationStatus } from '@/types/reservation';
-import type { Invoice, InvoiceStatus } from '@/types/invoice';
-import type { Payment, PaymentMethod } from '@/types/payment';
+import type { Factura, FacturaEstado } from '@/types/factura';
+import type { Anticipo } from '@/types/anticipo';
 
 // ── State ────────────────────────────────────────────────────
 const stats       = ref<DashboardStats | null>(null);
 const allRes      = ref<Reservation[]>([]);
-const allInv      = ref<Invoice[]>([]);
-const allPay      = ref<Payment[]>([]);
-const guestMap    = ref(new Map<number, string>());
+const allFac      = ref<Factura[]>([]);
+const allAnt      = ref<Anticipo[]>([]);
 const propertyMap = ref(new Map<number, string>());
 
 const { loading: isStatsLoading,        error: statsError,        run: runStats        } = useAsyncState();
 const { loading: isReservationsLoading, error: reservationsError, run: runReservations } = useAsyncState();
-const { loading: isInvoicesLoading,     error: invoicesError,     run: runInvoices     } = useAsyncState();
-const { loading: isPaymentsLoading,     error: paymentsError,     run: runPayments     } = useAsyncState();
+const { loading: isFacturasLoading,     error: facturasError,     run: runFacturas     } = useAsyncState();
+const { loading: isAnticiposLoading,    error: anticiposError,    run: runAnticipos    } = useAsyncState();
 
-// ── Status/method label maps ─────────────────────────────────
+// ── Status label maps ────────────────────────────────────────
 const RES_STATUS_LABELS: Record<ReservationStatus, string> = {
   CONFIRMED: 'Confirmada',
   CANCELLED: 'Cancelada',
@@ -240,32 +244,40 @@ const RES_STATUS_CLASSES: Record<ReservationStatus, string> = {
   COMPLETED: 'badge--completed',
 };
 
-const INV_STATUS_LABELS: Record<InvoiceStatus, string> = {
-  PENDING: 'Pendiente',
-  PAID:    'Pagada',
-  CANCELLED: 'Cancelada',
+const FAC_STATUS_LABELS: Record<FacturaEstado, string> = {
+  PENDING:   'Pendiente',
+  PAID:      'Emitida',
+  CANCELLED: 'Anulada',
 };
-const INV_STATUS_CLASSES: Record<InvoiceStatus, string> = {
+const FAC_STATUS_CLASSES: Record<FacturaEstado, string> = {
   PENDING:   'badge--pending',
   PAID:      'badge--paid',
   CANCELLED: 'badge--cancelled',
 };
 
-const METHOD_LABELS: Record<PaymentMethod, string> = {
-  CASH:     'Efectivo',
-  CARD:     'Tarjeta',
-  TRANSFER: 'Transferencia',
-  OTHER:    'Otro',
-};
-
-// ── Top-5 computeds ──────────────────────────────────────────
-function byCreatedAtDesc<T extends { createdAt: string }>(list: T[]): T[] {
-  return [...list].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+function estadoClass(estado: string): string {
+  if (estado === 'registrado') return 'badge--pending';
+  if (estado === 'aplicado')   return 'badge--paid';
+  if (estado === 'devuelto')   return 'badge--cancelled';
+  return '';
 }
 
-const recentReservations = computed(() => byCreatedAtDesc(allRes.value).slice(0, 5));
-const recentInvoices     = computed(() => byCreatedAtDesc(allInv.value).slice(0, 5));
-const recentPayments     = computed(() => byCreatedAtDesc(allPay.value).slice(0, 5));
+// ── Top-5 computeds ──────────────────────────────────────────
+const recentReservations = computed(() =>
+  [...allRes.value]
+    .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+    .slice(0, 5)
+);
+const recentFacturas = computed(() =>
+  [...allFac.value]
+    .sort((a, b) => +new Date(b.emitidaEn) - +new Date(a.emitidaEn))
+    .slice(0, 5)
+);
+const recentAnticipos = computed(() =>
+  [...allAnt.value]
+    .sort((a, b) => +new Date(b.registradoEn) - +new Date(a.registradoEn))
+    .slice(0, 5)
+);
 
 // ── Load functions ────────────────────────────────────────────
 async function loadStats(): Promise<void> {
@@ -276,35 +288,26 @@ async function loadStats(): Promise<void> {
 
 async function loadReservationData(): Promise<void> {
   await runReservations(async () => {
-    const [res, guests, props] = await Promise.all([
-      getReservations(),
-      getGuests(),
-      getProperties(),
-    ]);
+    const [res, props] = await Promise.all([getReservations(), getProperties()]);
     allRes.value = res;
-    guestMap.value = new Map(
-      guests.map(g => [g.id, `${g.documentNumber} — ${g.firstName} ${g.lastName}`])
-    );
-    propertyMap.value = new Map(
-      props.map(p => [p.id, `${p.name} (${p.city})`])
-    );
+    propertyMap.value = new Map(props.map(p => [p.id, p.name]));
   });
 }
 
-async function loadInvoices(): Promise<void> {
-  await runInvoices(async () => {
-    allInv.value = await getInvoices();
+async function loadFacturas(): Promise<void> {
+  await runFacturas(async () => {
+    allFac.value = await getFacturas();
   });
 }
 
-async function loadPayments(): Promise<void> {
-  await runPayments(async () => {
-    allPay.value = await getPayments();
+async function loadAnticipos(): Promise<void> {
+  await runAnticipos(async () => {
+    allAnt.value = await getAnticipos();
   });
 }
 
 async function loadAll(): Promise<void> {
-  await Promise.all([loadStats(), loadReservationData(), loadInvoices(), loadPayments()]);
+  await Promise.all([loadStats(), loadReservationData(), loadFacturas(), loadAnticipos()]);
 }
 
 // ── Formatters ────────────────────────────────────────────────
@@ -320,19 +323,14 @@ function formatCurrency(amount: number): string {
 function formatLocalDate(dateStr: string): string {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    year: 'numeric', month: 'short', day: 'numeric',
   });
 }
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleString('es-CO', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
   });
 }
 

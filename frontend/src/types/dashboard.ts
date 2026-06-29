@@ -7,6 +7,6 @@ export interface DashboardStats {
     pendingInvoices: number;
     paidInvoices: number;
     cancelledInvoices: number;
-    totalPayments: number;
-    totalRevenue: number;
+    totalAnticipos: number;
+    montoTotalAnticipos: number;
 }

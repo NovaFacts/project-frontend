@@ -1,19 +1,20 @@
 export interface Property {
     id: number;
     name: string;
-    address: string;
-    city: string;
-    capacity: number;
-    pricePerNight: number;
-    createdAt: string;
+    address: string | null;
+    descripcion: string | null;
+    activa: boolean;
 }
 
 export interface CreatePropertyRequest {
     name: string;
-    address: string;
-    city: string;
-    capacity: number;
-    pricePerNight: number;
+    address?: string;
+    descripcion?: string;
 }
 
-export type UpdatePropertyRequest = CreatePropertyRequest;
+export interface UpdatePropertyRequest {
+    name: string;
+    address?: string;
+    descripcion?: string;
+    activa: boolean;
+}

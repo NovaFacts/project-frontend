@@ -5,6 +5,6 @@ export interface LoginCredentials {
 }
 
 export type AuthResult =
-    | { status: 'success'; token: string; user: { email: string } }
+    | { status: 'success'; token: string; rol: string; nombre: string; user: { email: string } }
     | { status: 'invalid_credentials'; message: string }
     | { status: 'server_error'; errorCode: number };

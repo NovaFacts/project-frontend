@@ -1,13 +1,24 @@
 <template>
   <nav class="header-nav">
-    <router-link to="/dashboard" class="nav-link" exact-active-class="nav-link--active">Dashboard</router-link>
-    <router-link to="/guests" class="nav-link" exact-active-class="nav-link--active">Huéspedes</router-link>
-    <router-link to="/properties" class="nav-link" exact-active-class="nav-link--active">Propiedades</router-link>
+    <router-link to="/dashboard"    class="nav-link" exact-active-class="nav-link--active">Dashboard</router-link>
+    <router-link to="/guests"       class="nav-link" exact-active-class="nav-link--active">Huéspedes</router-link>
+    <router-link to="/properties"   class="nav-link" exact-active-class="nav-link--active">Propiedades</router-link>
     <router-link to="/reservations" class="nav-link" exact-active-class="nav-link--active">Reservas</router-link>
-    <router-link to="/invoices" class="nav-link" exact-active-class="nav-link--active">Facturas</router-link>
-    <router-link to="/payments" class="nav-link" exact-active-class="nav-link--active">Pagos</router-link>
+    <router-link to="/invoices"     class="nav-link" exact-active-class="nav-link--active">Facturas</router-link>
+    <router-link to="/payments"     class="nav-link" exact-active-class="nav-link--active">Pagos</router-link>
+    <template v-if="esAdministrador">
+      <router-link to="/canales"    class="nav-link" exact-active-class="nav-link--active">Canales</router-link>
+      <router-link to="/temporadas" class="nav-link" exact-active-class="nav-link--active">Temporadas</router-link>
+      <router-link to="/usuarios"   class="nav-link" exact-active-class="nav-link--active">Usuarios</router-link>
+    </template>
   </nav>
 </template>
+
+<script setup lang="ts">
+import { ROL_KEY } from '@/services/api';
+
+const esAdministrador = localStorage.getItem(ROL_KEY) === 'Administrador';
+</script>
 
 <style scoped>
 .header-nav {

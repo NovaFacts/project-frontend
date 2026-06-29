@@ -1,7 +1,7 @@
 <template>
   <main class="page-main">
     <PageHeader
-      title="Gestión de Propiedades"
+      title="Gestión de propiedades"
       create-label="+ Nueva propiedad"
       :show-create-button="true"
       @create="openCreateModal"
@@ -26,25 +26,31 @@
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Ciudad</th>
             <th>Dirección</th>
-            <th>Capacidad</th>
-            <th>Precio / noche</th>
-            <th>Registrada</th>
+            <th>Descripción</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="property in properties" :key="property.id">
             <td>{{ property.name }}</td>
-            <td>{{ property.city }}</td>
-            <td>{{ property.address }}</td>
-            <td>{{ property.capacity }} pers.</td>
-            <td>{{ formatCurrency(property.pricePerNight) }}</td>
-            <td>{{ formatDate(property.createdAt) }}</td>
+            <td>{{ property.address ?? '—' }}</td>
+            <td>{{ property.descripcion ?? '—' }}</td>
+            <td>
+              <span :class="property.activa ? 'badge badge--confirmed' : 'badge badge--cancelled'">
+                {{ property.activa ? 'Activa' : 'Inactiva' }}
+              </span>
+            </td>
             <td class="actions-cell">
               <button class="btn btn--sm btn--ghost" @click="openEditModal(property)">Editar</button>
-              <button class="btn btn--sm btn--danger" @click="confirmDelete(property)">Eliminar</button>
+              <button
+                v-if="property.activa"
+                class="btn btn--sm btn--danger"
+                @click="confirmDelete(property)"
+              >
+                Desactivar
+              </button>
             </td>
           </tr>
         </tbody>
@@ -60,66 +66,30 @@
       <div class="form-row">
         <div class="form-group form-group--full">
           <label for="prop-name">Nombre *</label>
-          <input
-            id="prop-name"
-            v-model="form.name"
-            type="text"
-            placeholder="Casa de playa"
-            required
-          />
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="prop-city">Ciudad *</label>
-          <input
-            id="prop-city"
-            v-model="form.city"
-            type="text"
-            placeholder="Cartagena"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="prop-capacity">Capacidad (personas) *</label>
-          <input
-            id="prop-capacity"
-            v-model="form.capacity"
-            type="number"
-            min="1"
-            step="1"
-            placeholder="4"
-            required
-          />
+          <input id="prop-name" v-model="form.name" type="text" placeholder="Casa de playa" required />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group form-group--full">
-          <label for="prop-address">Dirección *</label>
-          <input
-            id="prop-address"
-            v-model="form.address"
-            type="text"
-            placeholder="Calle 1 # 2-3"
-            required
-          />
+          <label for="prop-address">Dirección</label>
+          <input id="prop-address" v-model="form.address" type="text" placeholder="Calle 1 # 2-3" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group form-group--full">
-          <label for="prop-price">Precio por noche (COP) *</label>
-          <input
-            id="prop-price"
-            v-model="form.pricePerNight"
-            type="number"
-            min="0"
-            step="1000"
-            placeholder="150000"
-            required
-          />
+          <label for="prop-descripcion">Descripción</label>
+          <textarea id="prop-descripcion" v-model="form.descripcion" rows="3" placeholder="Descripción opcional de la propiedad…" />
+        </div>
+      </div>
+
+      <div v-if="modalMode === 'edit'" class="form-row">
+        <div class="form-group form-group--full">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="form.activa" />
+            Propiedad activa
+          </label>
         </div>
       </div>
 
@@ -134,19 +104,18 @@
     </form>
   </AppModal>
 
-  <!-- Delete confirmation modal -->
+  <!-- Deactivate confirmation modal -->
   <AppModal v-if="showDeleteModal" size="sm" @close="cancelDelete">
-    <h3 class="modal-title">Eliminar propiedad</h3>
+    <h3 class="modal-title">Desactivar propiedad</h3>
     <p class="modal-body">
-      ¿Estás seguro de que quieres eliminar
-      <strong>{{ propertyToDelete?.name }}</strong>?
-      Esta acción no se puede deshacer.
+      ¿Desactivar <strong>{{ propertyToDelete?.name }}</strong>?
+      La propiedad permanecerá en el sistema marcada como inactiva.
     </p>
     <p v-if="deleteError" class="form-error">{{ deleteError }}</p>
     <div class="modal-actions">
       <button class="btn btn--ghost" @click="cancelDelete">Cancelar</button>
       <button class="btn btn--danger" :disabled="isDeleting" @click="handleDelete">
-        {{ isDeleting ? 'Eliminando…' : 'Eliminar' }}
+        {{ isDeleting ? 'Desactivando…' : 'Desactivar' }}
       </button>
     </div>
   </AppModal>
@@ -158,14 +127,13 @@ import { useAsyncState } from '@/composables/useAsyncState';
 import AppModal from '@/components/AppModal.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { getProperties, createProperty, updateProperty, deleteProperty } from '@/services/propertyService';
-import type { Property, CreatePropertyRequest } from '@/types/property';
+import type { Property, UpdatePropertyRequest } from '@/types/property';
 
 interface PropertyFormState {
   name: string;
   address: string;
-  city: string;
-  capacity: string;
-  pricePerNight: string;
+  descripcion: string;
+  activa: boolean;
 }
 
 const properties = ref<Property[]>([]);
@@ -184,9 +152,8 @@ const propertyToDelete = ref<Property | null>(null);
 const emptyForm = (): PropertyFormState => ({
   name: '',
   address: '',
-  city: '',
-  capacity: '',
-  pricePerNight: '',
+  descripcion: '',
+  activa: true,
 });
 
 const form = ref<PropertyFormState>(emptyForm());
@@ -209,10 +176,9 @@ function openEditModal(property: Property): void {
   selectedProperty.value = property;
   form.value = {
     name: property.name,
-    address: property.address,
-    city: property.city,
-    capacity: String(property.capacity),
-    pricePerNight: String(property.pricePerNight),
+    address: property.address ?? '',
+    descripcion: property.descripcion ?? '',
+    activa: property.activa,
   };
   showModal.value = true;
 }
@@ -221,39 +187,26 @@ function closeModal(): void {
   showModal.value = false;
 }
 
-function validate(): string | null {
-  if (!form.value.name.trim()) return 'El nombre es obligatorio.';
-  if (!form.value.city.trim()) return 'La ciudad es obligatoria.';
-  if (!form.value.address.trim()) return 'La dirección es obligatoria.';
-  const cap = parseInt(form.value.capacity, 10);
-  if (!form.value.capacity || isNaN(cap) || cap <= 0) {
-    return 'La capacidad debe ser un número entero mayor a 0.';
-  }
-  const price = parseFloat(form.value.pricePerNight);
-  if (!form.value.pricePerNight || isNaN(price) || price <= 0) {
-    return 'El precio por noche debe ser mayor a 0.';
-  }
-  return null;
-}
-
 async function handleSubmit(): Promise<void> {
-  const validationError = validate();
-  if (validationError) {
-    modalError.value = validationError;
+  if (!form.value.name.trim()) {
+    modalError.value = 'El nombre es obligatorio.';
     return;
   }
   await runSubmit(async () => {
-    const payload: CreatePropertyRequest = {
-      name: form.value.name.trim(),
-      address: form.value.address.trim(),
-      city: form.value.city.trim(),
-      capacity: parseInt(form.value.capacity, 10),
-      pricePerNight: parseFloat(form.value.pricePerNight),
-    };
     if (modalMode.value === 'create') {
-      const created = await createProperty(payload);
+      const created = await createProperty({
+        name: form.value.name.trim(),
+        address: form.value.address.trim() || undefined,
+        descripcion: form.value.descripcion.trim() || undefined,
+      });
       properties.value.push(created);
     } else if (selectedProperty.value) {
+      const payload: UpdatePropertyRequest = {
+        name: form.value.name.trim(),
+        address: form.value.address.trim() || undefined,
+        descripcion: form.value.descripcion.trim() || undefined,
+        activa: form.value.activa,
+      };
       const updated = await updateProperty(selectedProperty.value.id, payload);
       const index = properties.value.findIndex(p => p.id === updated.id);
       if (index !== -1) properties.value[index] = updated;
@@ -276,28 +229,22 @@ async function handleDelete(): Promise<void> {
   if (!propertyToDelete.value) return;
   await runDelete(async () => {
     await deleteProperty(propertyToDelete.value!.id);
-    properties.value = properties.value.filter(p => p.id !== propertyToDelete.value!.id);
+    const index = properties.value.findIndex(p => p.id === propertyToDelete.value!.id);
+    if (index !== -1) properties.value[index] = { ...properties.value[index], activa: false };
     showDeleteModal.value = false;
     propertyToDelete.value = null;
   });
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('es-CO', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 onMounted(loadProperties);
 </script>
+
+<style scoped>
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+</style>

@@ -1,8 +1,8 @@
 import api from './api'
 import type { Factura, CreateFacturaRequest } from '../types/factura'
 
-export const getFacturas = (): Promise<Factura[]> =>
-  api.get('/api/facturas').then(r => r.data)
+export const getFacturas = (page = 0, size = 50): Promise<Factura[]> =>
+  api.get(`/api/facturas?page=${page}&size=${size}`).then(r => r.data.content)
 
 export const getFactura = (id: number): Promise<Factura> =>
   api.get(`/api/facturas/${id}`).then(r => r.data)

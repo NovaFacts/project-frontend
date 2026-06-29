@@ -2,8 +2,19 @@ export type ReservationStatus = 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
 
 export interface Reservation {
     id: number;
-    guestId: number;
     propertyId: number;
+    canalId: number;
+    canalNombre: string;
+    temporadaId: number;
+    temporadaNombre: string;
+    politicaCancelacionId: number;
+    politicaCancelacionNombre: string;
+    usuarioCreadorId: number;
+    usuarioCreadorNombre: string;
+    clienteNombre: string;
+    clienteEmail: string | null;
+    clienteTelefono: string | null;
+    montoTotal: number;
     checkIn: string;
     checkOut: string;
     guestCount: number;
@@ -12,16 +23,28 @@ export interface Reservation {
 }
 
 export interface CreateReservationRequest {
-    guestId: number;
     propertyId: number;
+    canalId: number;
+    temporadaId: number;
+    politicaCancelacionId: number;
+    clienteNombre: string;
+    clienteEmail?: string;
+    clienteTelefono?: string;
+    montoTotal: number;
     checkIn: string;
     checkOut: string;
     guestCount: number;
 }
 
 export interface UpdateReservationRequest {
-    guestId: number;
     propertyId: number;
+    canalId: number;
+    temporadaId: number;
+    politicaCancelacionId: number;
+    clienteNombre: string;
+    clienteEmail?: string;
+    clienteTelefono?: string;
+    montoTotal: number;
     checkIn: string;
     checkOut: string;
     guestCount: number;

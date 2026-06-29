@@ -27,6 +27,7 @@
             <th>Correo</th>
             <th>Rol</th>
             <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -38,6 +39,17 @@
               <span :class="u.activo !== false ? 'badge badge--confirmed' : 'badge badge--cancelled'">
                 {{ u.activo !== false ? 'Activo' : 'Inactivo' }}
               </span>
+            </td>
+            <td>
+              <button
+                v-if="u.activo !== false"
+                class="btn btn--ghost btn--sm btn--danger"
+                :disabled="desactivandoId === u.id"
+                @click="desactivar(u)"
+              >
+                {{ desactivandoId === u.id ? 'Desactivando…' : 'Desactivar' }}
+              </button>
+              <span v-else class="text-muted">—</span>
             </td>
           </tr>
         </tbody>
@@ -93,7 +105,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useAsyncState } from '@/composables/useAsyncState';
-import { getUsuarios, createUsuario } from '@/services/userService';
+import { getUsuarios, createUsuario, deleteUsuario } from '@/services/userService';
 import { getRoles } from '@/services/rolService';
 import type { RolResponse } from '@/types/rol';
 import AppModal from '@/components/AppModal.vue';
@@ -111,6 +123,7 @@ const roles = ref<RolResponse[]>([]);
 const modalVisible = ref(false);
 const isSaving = ref(false);
 const formError = ref<string | null>(null);
+const desactivandoId = ref<number | null>(null);
 
 const form = ref({ nombre: '', email: '', password: '', rolId: '' as number | '' });
 
@@ -132,6 +145,19 @@ function abrirModalCrear(): void {
 
 function cerrarModal(): void {
   modalVisible.value = false;
+}
+
+async function desactivar(u: Usuario): Promise<void> {
+  if (!confirm(`¿Desactivar al usuario "${u.nombre}"? No podrá iniciar sesión.`)) return;
+  desactivandoId.value = u.id;
+  try {
+    await deleteUsuario(u.id);
+    u.activo = false;
+  } catch {
+    alert('No se pudo desactivar el usuario. Intente nuevamente.');
+  } finally {
+    desactivandoId.value = null;
+  }
 }
 
 async function guardar(): Promise<void> {
@@ -173,5 +199,19 @@ onMounted(cargar);
   font-weight: 700;
   color: #111111;
   margin: 0;
+}
+
+.btn--danger {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.text-muted {
+  color: #9ca3af;
 }
 </style>

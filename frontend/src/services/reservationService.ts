@@ -2,8 +2,8 @@ import api from './api';
 import type { Reservation, CreateReservationRequest, UpdateReservationRequest } from '../types/reservation';
 
 export async function getReservations(): Promise<Reservation[]> {
-    const response = await api.get<Reservation[]>('/api/reservations');
-    return response.data;
+    const response = await api.get('/api/reservations?page=0&size=50');
+    return response.data.content;
 }
 
 export async function getReservation(id: number): Promise<Reservation> {

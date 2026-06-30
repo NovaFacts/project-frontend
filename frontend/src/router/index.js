@@ -61,7 +61,7 @@ const routes = [
         component: DevolucionesView,
         meta: { requiresBilling: true }
       },
-      { path: '/politicas',     name: 'politicas',    component: PoliticasView },
+      { path: '/politicas',     name: 'politicas',    component: PoliticasView,  meta: { requiresAdmin: true } },
       {
         path: '/usuarios',
         name: 'usuarios',

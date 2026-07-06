@@ -2,8 +2,8 @@ import api from './api';
 import type { Anticipo, CreateAnticipoRequest } from '../types/anticipo';
 
 export async function getAnticipos(): Promise<Anticipo[]> {
-    const response = await api.get<Anticipo[]>('/api/anticipos');
-    return response.data;
+    const response = await api.get('/api/anticipos?page=0&size=50');
+    return response.data.content;
 }
 
 export async function getAnticiposByReserva(reservaId: number): Promise<Anticipo[]> {

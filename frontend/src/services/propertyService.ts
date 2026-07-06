@@ -2,8 +2,8 @@ import api from './api';
 import type { Property, CreatePropertyRequest, UpdatePropertyRequest } from '../types/property';
 
 export async function getProperties(): Promise<Property[]> {
-    const response = await api.get<Property[]>('/api/propiedades');
-    return response.data;
+    const response = await api.get('/api/propiedades?page=0&size=50');
+    return response.data.content;
 }
 
 export async function getProperty(id: number): Promise<Property> {

@@ -2,8 +2,8 @@ import api from './api';
 import type { Penalidad, CreatePenalidadRequest } from '../types/penalidad';
 
 export async function getPenalidades(): Promise<Penalidad[]> {
-    const response = await api.get<Penalidad[]>('/api/penalidades');
-    return response.data;
+    const response = await api.get('/api/penalidades?page=0&size=50');
+    return response.data.content;
 }
 
 export async function getPenalidadesByReserva(reservaId: number): Promise<Penalidad[]> {

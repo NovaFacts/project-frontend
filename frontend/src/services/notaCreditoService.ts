@@ -2,7 +2,7 @@ import api from './api'
 import type { NotaCredito, CreateNotaCreditoRequest } from '../types/notaCredito'
 
 export const getNotasCredito = (): Promise<NotaCredito[]> =>
-  api.get('/api/notas-credito').then(r => r.data)
+  api.get('/api/notas-credito?page=0&size=50').then(r => r.data.content)
 
 export const getNotaCredito = (id: number): Promise<NotaCredito> =>
   api.get(`/api/notas-credito/${id}`).then(r => r.data)

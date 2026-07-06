@@ -162,7 +162,7 @@
         <div class="form-group">
           <label for="res-monto">Monto total (COP) *</label>
           <input id="res-monto" v-model="form.montoTotal" type="number"
-                 min="0" step="1000" placeholder="500000" required />
+                 min="0.01" step="1000" placeholder="500000" required />
         </div>
         <div class="form-group">
           <label for="res-count">Nº de huéspedes *</label>
@@ -398,8 +398,8 @@ function validate(): string | null {
     return 'La fecha de salida debe ser posterior a la de entrada.';
   }
   const monto = parseFloat(form.value.montoTotal);
-  if (!form.value.montoTotal || isNaN(monto) || monto < 0) {
-    return 'El monto total debe ser un valor positivo.';
+  if (!form.value.montoTotal || isNaN(monto) || monto <= 0) {
+    return 'El monto total debe ser mayor a cero.';
   }
   const count = parseInt(form.value.guestCount, 10);
   if (!form.value.guestCount || isNaN(count) || count < 1) {

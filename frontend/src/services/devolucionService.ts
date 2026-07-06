@@ -2,7 +2,7 @@ import api from './api'
 import type { Devolucion, CreateDevolucionRequest } from '../types/devolucion'
 
 export const getDevoluciones = (): Promise<Devolucion[]> =>
-  api.get('/api/devoluciones').then(r => r.data)
+  api.get('/api/devoluciones?page=0&size=50').then(r => r.data.content)
 
 export const getDevolucion = (id: number): Promise<Devolucion> =>
   api.get(`/api/devoluciones/${id}`).then(r => r.data)

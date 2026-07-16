@@ -57,7 +57,7 @@
     </div>
 
     <!-- Modal: Nuevo usuario -->
-    <AppModal :visible="modalVisible" @close="cerrarModal">
+    <AppModal v-if="modalVisible" @close="cerrarModal">
       <h3 class="modal-title">Nuevo usuario</h3>
 
       <div v-if="formError" class="page-error">{{ formError }}</div>

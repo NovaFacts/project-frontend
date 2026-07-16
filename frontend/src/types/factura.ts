@@ -18,9 +18,5 @@ export interface Factura {
 
 export interface CreateFacturaRequest {
   reservaId: number
-  subtotal: number
-  descuentoAnticipo?: number
-  recargoPenalidad?: number
-  impuestos?: number
   urlDocumento?: string
 }

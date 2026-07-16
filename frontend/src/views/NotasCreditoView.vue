@@ -151,7 +151,7 @@ async function submitForm() {
     notas.value.unshift(created)
     closeModal()
   } catch (e: any) {
-    formError.value = e?.response?.data?.message ?? 'Error al crear la nota de crédito.'
+    formError.value = e?.response?.data?.error ?? 'Error al crear la nota de crédito.'
   } finally {
     isSubmitting.value = false
   }
@@ -169,7 +169,7 @@ async function eliminar() {
     notas.value = notas.value.filter(n => n.id !== notaAEliminar.value?.id)
     notaAEliminar.value = null
   } catch (e: any) {
-    alert(e?.response?.data?.message ?? 'Error al eliminar la nota de crédito.')
+    alert(e?.response?.data?.error ?? 'Error al eliminar la nota de crédito.')
   } finally {
     isSubmitting.value = false
   }

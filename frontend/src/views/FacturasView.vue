@@ -63,7 +63,7 @@
         <form @submit.prevent="submitForm">
 
           <label>Reserva</label>
-          <select v-model.number="form.reservaId" required @change="onReservaChange">
+          <select v-model.number="form.reservaId" required>
             <option disabled value="">— Seleccione reserva —</option>
             <option v-for="r in reservas" :key="r.id" :value="r.id">
               #{{ r.id }} — {{ r.clienteNombre }}
@@ -71,27 +71,27 @@
           </select>
 
           <template v-if="form.reservaId">
+            <label>Subtotal (monto de la reserva)</label>
+            <p class="auto-note">{{ fmt(selectedReservaMonto) }}</p>
+
             <div class="auto-row">
               <div>
-                <label>Descuento anticipo (auto)</label>
-                <input type="number" :value="form.descuentoAnticipo" readonly class="input-readonly" />
+                <label>Descuento anticipo</label>
+                <p class="auto-note">Se calcula y aplica automáticamente al facturar.</p>
               </div>
               <div>
-                <label>Recargo penalidad (auto)</label>
-                <input type="number" :value="form.recargoPenalidad" readonly class="input-readonly" />
+                <label>Recargo penalidad</label>
+                <p class="auto-note">Se calcula y aplica automáticamente al facturar.</p>
               </div>
             </div>
+
+            <label>Impuestos (estimado — calculado automáticamente al facturar)</label>
+            <p class="auto-note">{{ fmt(estimatedImpuestos) }}</p>
           </template>
 
-          <label>Subtotal</label>
-          <input v-model.number="form.subtotal" type="number" min="0.01" step="0.01" required @input="recalcular" />
-
-          <label>Impuestos (sugerido: 19%)</label>
-          <input v-model.number="form.impuestos" type="number" min="0" step="0.01" />
-
           <div class="total-preview">
-            <strong>Total calculado:</strong> {{ fmt(calculatedTotal) }}
-            <small>(subtotal − desc. anticipo + recargo pen. + impuestos)</small>
+            <strong>Total estimado:</strong> {{ fmt(calculatedTotal) }}
+            <small>(monto de la reserva + impuestos estimados; anticipos, penalidades e impuestos reales se calculan automáticamente al facturar)</small>
           </div>
 
           <label>URL documento <span class="opt">(opcional)</span></label>
@@ -128,8 +128,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getFacturas, createFactura, emitirFactura, anularFactura, deleteFactura } from '../services/facturaService'
-import { getAnticiposByReserva } from '../services/anticipoService'
-import { getPenalidadesByReserva } from '../services/penalidadService'
 import { getReservations } from '../services/reservationService'
 import type { Factura, CreateFacturaRequest } from '../types/factura'
 import type { Reservation } from '../types/reservation'
@@ -145,19 +143,26 @@ const facturaAEliminar = ref<Factura | null>(null)
 
 const emptyForm = () => ({
   reservaId: '' as number | '',
-  subtotal: 0,
-  descuentoAnticipo: 0,
-  recargoPenalidad: 0,
-  impuestos: 0,
   urlDocumento: ''
 })
 const form = ref(emptyForm())
 
+// Subtotal is no longer client state at all — it's always the selected reservation's
+// own persisted montoTotal (Phase 3), shown here purely for information.
+const selectedReservaMonto = computed(() => {
+  const r = reservas.value.find(r => r.id === Number(form.value.reservaId))
+  return r?.montoTotal ?? 0
+})
+
+// Phase 4: impuestos is never client state either — this is a display-only estimate
+// (the backend's actual configured rate may differ), never sent to the server.
+const estimatedImpuestos = computed(() => Math.round(selectedReservaMonto.value * 0.19 * 100) / 100)
+
+// Anticipos and penalidades are no longer part of this estimate either — the backend
+// derives and applies both itself when the invoice is created (RF11/RF12, Phase 2).
 const calculatedTotal = computed(() =>
-  (form.value.subtotal || 0)
-  - (form.value.descuentoAnticipo || 0)
-  + (form.value.recargoPenalidad || 0)
-  + (form.value.impuestos || 0)
+  selectedReservaMonto.value
+  + estimatedImpuestos.value
 )
 
 function fmt(n: number) {
@@ -190,26 +195,6 @@ async function load() {
   }
 }
 
-async function onReservaChange() {
-  const rid = form.value.reservaId
-  if (!rid) return
-  try {
-    const [anticipos, penalidades] = await Promise.all([
-      getAnticiposByReserva(Number(rid)),
-      getPenalidadesByReserva(Number(rid))
-    ])
-    form.value.descuentoAnticipo = anticipos.reduce((s, a) => s + (a.monto || 0), 0)
-    form.value.recargoPenalidad = penalidades.reduce((s, p) => s + (p.montoAprobado || 0), 0)
-  } catch {
-    form.value.descuentoAnticipo = 0
-    form.value.recargoPenalidad = 0
-  }
-}
-
-function recalcular() {
-  form.value.impuestos = Math.round(form.value.subtotal * 0.19 * 100) / 100
-}
-
 function openModal() {
   form.value = emptyForm()
   formError.value = ''
@@ -227,17 +212,13 @@ async function submitForm() {
   try {
     const payload: CreateFacturaRequest = {
       reservaId: Number(form.value.reservaId),
-      subtotal: form.value.subtotal,
-      descuentoAnticipo: form.value.descuentoAnticipo,
-      recargoPenalidad: form.value.recargoPenalidad,
-      impuestos: form.value.impuestos,
       urlDocumento: form.value.urlDocumento || undefined
     }
     const created = await createFactura(payload)
     facturas.value.unshift(created)
     closeModal()
   } catch (e: any) {
-    formError.value = e?.response?.data?.message ?? 'Error al crear la factura.'
+    formError.value = e?.response?.data?.error ?? 'Error al crear la factura.'
   } finally {
     isSubmitting.value = false
   }
@@ -249,7 +230,7 @@ async function emitir(id: number) {
     const idx = facturas.value.findIndex(f => f.id === id)
     if (idx !== -1) facturas.value[idx] = updated
   } catch (e: any) {
-    alert(e?.response?.data?.message ?? 'Error al emitir la factura.')
+    alert(e?.response?.data?.error ?? 'Error al emitir la factura.')
   }
 }
 
@@ -259,7 +240,7 @@ async function anular(id: number) {
     const idx = facturas.value.findIndex(f => f.id === id)
     if (idx !== -1) facturas.value[idx] = updated
   } catch (e: any) {
-    alert(e?.response?.data?.message ?? 'Error al anular la factura.')
+    alert(e?.response?.data?.error ?? 'Error al anular la factura.')
   }
 }
 
@@ -275,7 +256,7 @@ async function eliminar() {
     facturas.value = facturas.value.filter(f => f.id !== facturaAEliminar.value?.id)
     facturaAEliminar.value = null
   } catch (e: any) {
-    alert(e?.response?.data?.message ?? 'Error al eliminar la factura.')
+    alert(e?.response?.data?.error ?? 'Error al eliminar la factura.')
   } finally {
     isSubmitting.value = false
   }

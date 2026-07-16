@@ -19,4 +19,24 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// A 401 means the stored token is missing/expired/invalid — Spring Security rejects it
+// before any request-specific handling runs, so every view would otherwise show the same
+// generic "session" error with no way to recover. Handling it here once, centrally, clears
+// the stale session and sends the user back to log in again. The login request itself is
+// excluded so a bad-credentials response doesn't bounce the user right back to the page
+// they're already on.
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const isLoginRequest = error.config?.url?.includes('/api/auth/login');
+        if (isAxiosError(error) && error.response?.status === 401 && !isLoginRequest) {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(ROL_KEY);
+            localStorage.removeItem(NOMBRE_KEY);
+            window.location.href = '/';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

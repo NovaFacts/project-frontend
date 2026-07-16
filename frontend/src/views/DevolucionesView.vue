@@ -201,7 +201,7 @@ async function submitForm() {
     devoluciones.value.unshift(created)
     closeModal()
   } catch (e: any) {
-    formError.value = e?.response?.data?.message ?? 'Error al registrar la devolución.'
+    formError.value = e?.response?.data?.error ?? 'Error al registrar la devolución.'
   } finally {
     isSubmitting.value = false
   }
@@ -213,7 +213,7 @@ async function procesar(id: number) {
     const idx = devoluciones.value.findIndex(d => d.id === id)
     if (idx !== -1) devoluciones.value[idx] = updated
   } catch (e: any) {
-    alert(e?.response?.data?.message ?? 'Error al procesar la devolución.')
+    alert(e?.response?.data?.error ?? 'Error al procesar la devolución.')
   }
 }
 
@@ -223,7 +223,7 @@ async function rechazar(id: number) {
     const idx = devoluciones.value.findIndex(d => d.id === id)
     if (idx !== -1) devoluciones.value[idx] = updated
   } catch (e: any) {
-    alert(e?.response?.data?.message ?? 'Error al rechazar la devolución.')
+    alert(e?.response?.data?.error ?? 'Error al rechazar la devolución.')
   }
 }
 
@@ -239,7 +239,7 @@ async function eliminar() {
     devoluciones.value = devoluciones.value.filter(d => d.id !== devAEliminar.value?.id)
     devAEliminar.value = null
   } catch (e: any) {
-    alert(e?.response?.data?.message ?? 'Error al eliminar la devolución.')
+    alert(e?.response?.data?.error ?? 'Error al eliminar la devolución.')
   } finally {
     isSubmitting.value = false
   }
